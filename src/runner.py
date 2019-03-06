@@ -12,6 +12,7 @@ from collections import Counter
 import time
 from mar import MAR
 from sk import rdivDemo
+import pandas as pd
 
 def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
     stopat = float(stopat)
@@ -119,7 +120,7 @@ def Supervised(filename, old_files = [], stop='est', stopat=0.95, error='none', 
             read.code_error(id, error=error)
     return read
 
-def Plot(read,file_save):
+def Plot(result,file_save):
     font = {'family': 'normal',
                 'weight': 'bold',
                 'size': 20}
@@ -132,11 +133,11 @@ def Plot(read,file_save):
 
     fig = plt.figure()
     ax=plt.subplot(111)
-    pos=Counter(read.body['label'][:read.newpart])['yes']
-    total = read.newpart
-    x= np.array(map(float,read.record['x']))/total
-    y= np.array(map(float,read.record['pos']))/pos
-    z= np.array(map(float,read.record['est']))/pos
+    pos=result['true'][0]
+    total = result['true'][1]
+    x= np.array(map(float,result['x']))/total
+    y= np.array(map(float,result['pos']))/pos
+    z= np.array(map(float,result['est']))/pos
 
 
     ax.plot(x, y, color='blue',linestyle = '-')
@@ -216,12 +217,25 @@ def exp_HPC(i , input = '../data/'):
     files.remove(file)
 
     read = Supervised(file, files)
+    pos = Counter(read.body['label'][:read.newpart])['yes']
+    total = read.newpart
+    result = read.record
+    result['true']=[pos,total]
 
     # Plot(read,file.split('.')[0])
+    with open("../dump/"+'.'.join(file.split('.')[:-1])+'.csv',"w") as handle:
+        pickle.dump(result,handle)
 
 
-    with open("../dump/"+file.split('.')[0]+".pickle","w") as handle:
-        pickle.dump(read,handle)
+
+def plot_HPC(input = '../dump/'):
+    files = listdir(input)
+    for file in files:
+        with open("../dump/"+file+,"r") as handle:
+            result = pickle.load(handle)
+        Plot(result,'.'.join(file.split('.')[:-1]))
+
+
 
 def collect_HPC(path = "./dump/"):
     files = listdir(path)
