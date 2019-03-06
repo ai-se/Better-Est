@@ -217,7 +217,7 @@ def exp_HPC(i , input = '../data/'):
 
     read = Supervised(file, files)
 
-    Plot(read,file.split('.')[0])
+    # Plot(read,file.split('.')[0])
 
 
     with open("../dump/"+file.split('.')[0]+".pickle","w") as handle:
