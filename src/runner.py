@@ -231,7 +231,7 @@ def exp_HPC(i , input = '../data/'):
 def plot_HPC(input = '../dump/'):
     files = listdir(input)
     for file in files:
-        with open("../dump/"+file+,"r") as handle:
+        with open("../dump/"+file,"r") as handle:
             result = pickle.load(handle)
         Plot(result,'.'.join(file.split('.')[:-1]))
 
