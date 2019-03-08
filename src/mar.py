@@ -293,19 +293,22 @@ class MAR(object):
             self.round = self.round + 1
         #####################################################
 
-
-        certain_time_id, certain_time_prob = self.certain_time(clf)
+        uncertain_id, uncertain_prob = self.uncertain(clf)
         certain_id, certain_prob = self.certain(clf)
         if self.enable_est:
-            if self.last_pos>0 and len(poses)-self.last_pos>0:
-                self.est_num, self.est = self.estimate_curve(clf, reuse=True, num_neg=len(sample)-len(left))
-            else:
-                self.est_num, self.est = self.estimate_curve(clf, reuse=False, num_neg=len(sample)-len(left))
-            return certain_time_id, self.est[certain_time_id], certain_id, self.est[certain_id]
+            self.est_num, self.est = self.estimate_curve(clf, num_neg=len(sample)-len(left))
+            return uncertain_id, self.est[uncertain_id], certain_id, self.est[certain_id]
         else:
-            return certain_time_id, certain_time_prob, certain_id, certain_prob
+            return uncertain_id, uncertain_prob, certain_id, certain_prob
 
-
+        ## Get uncertain ##
+    def uncertain(self,clf):
+        pos_at = list(clf.classes_).index("yes")
+        prob = clf.predict_proba(self.csr_mat[self.pool])[:, pos_at]
+        train_dist = clf.decision_function(self.csr_mat[self.pool])
+        order = np.argsort(np.abs(train_dist))[:self.step]  ## uncertainty sampling by distance to decision plane
+        # order = np.argsort(np.abs(prob-0.5))[:self.step]    ## uncertainty sampling by prediction probability
+        return np.array(self.pool)[order], np.array(prob)[order]
 
     ## Get certain ##
     def certain(self,clf):

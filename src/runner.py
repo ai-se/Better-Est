@@ -14,7 +14,7 @@ from mar import MAR
 from sk import rdivDemo
 import pandas as pd
 
-def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def TEST_AL(filename, old_files = [], stop='true', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
     stopat = float(stopat)
     thres = 0
     counter = 0
@@ -47,11 +47,7 @@ def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interv
             break
 
         if pos < starting or pos+neg<thres:
-            if len(old_files)>0:
-                a,b,c,d =read.train_old(weighting=True,pne=True)
-                for id in c:
-                    read.code_error(id, error=error)
-            elif timestart:
+            if timestart:
                 for id in read.fast():
                     read.code_error(id, error=error)
             else:
@@ -73,7 +69,7 @@ def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interv
     # read.plot()
     return read
 
-def Supervised(filename, old_files = [], stop='est', stopat=0.95, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def Supervised(filename, old_files = [], stop='true', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
     stopat = float(stopat)
     np.random.seed(seed)
 
@@ -120,7 +116,7 @@ def Supervised(filename, old_files = [], stop='est', stopat=0.95, error='none', 
             read.code_error(id, error=error)
     return read
 
-def Plot(result,file_save):
+def Plot(results,file_save):
     font = {'family': 'normal',
                 'weight': 'bold',
                 'size': 20}
@@ -133,16 +129,24 @@ def Plot(result,file_save):
 
     fig = plt.figure()
     ax=plt.subplot(111)
-    pos=result['true'][0]
-    total = result['true'][1]
-    x= np.array(map(float,result['x']))/total
-    y= np.array(map(float,result['pos']))/pos
-    z= np.array(map(float,result['est']))/pos
+    pos=results['true'][0]
+    total = results['true'][1]
+    colors=['red','blue','green']
+    i=0
+    for key in results:
+        if key == 'true':
+            continue
 
+        x= np.array(map(float,results[key]['x']))/total
+        y= np.array(map(float,results[key]['pos']))/pos
+        ax.plot(x, y, color=colors[i],linestyle = '-', label=key)
+        if len(results[key]['est'])>1:
+            z= np.array(map(float,results[key]['est']))/pos
+            ax.plot(x, z, color=colors[i],linestyle = ':')
+        i+=1
 
-    ax.plot(x, y, color='blue',linestyle = '-')
-    ax.plot(x, z, color='red',linestyle = ':')
-
+    plt.subplots_adjust(top=0.95, left=0.12, bottom=0.2, right=0.75)
+    ax.legend(bbox_to_anchor=(1.02, 1), loc=2, ncol=1, borderaxespad=0.)
     plt.ylabel("Recall")
     plt.xlabel("Cost")
 
@@ -215,16 +219,22 @@ def exp_HPC(i , input = '../data/'):
     files = listdir(input)
     file = files[i]
     files.remove(file)
+    results = {}
 
     read = Supervised(file, files)
     pos = Counter(read.body['label'][:read.newpart])['yes']
     total = read.newpart
-    result = read.record
-    result['true']=[pos,total]
+
+    results['true']=[pos,total]
+    results['supervised'] = read.record
+
+    read = Supervised(file, files)
+    results['active'] = read.record
+
 
     # Plot(read,file.split('.')[0])
     with open("../dump/"+'.'.join(file.split('.')[:-1])+'.csv',"w") as handle:
-        pickle.dump(result,handle)
+        pickle.dump(results,handle)
 
 
 
@@ -312,14 +322,15 @@ def sum_relative():
             rdivDemo(results[metrics],bigger_better=False)
 
 
-def exp_target(input = '../data/',target='apache-jmeter-2.10.csv'):
+def exp_target(input = '../data/',target='apache-ant-1.7.0.csv'):
     files = listdir(input)
     files.remove(target)
     try:
         files.remove('.DS_Store')
     except:
         pass
-    read = Supervised(target, files)
+    read = TEST_AL(target)
+    set_trace()
     est = read.record['est'][0]
     print(target+": "+str(est)+" / "+ str(read.record['pos'][-1])+" / "+str(read.record['pos'][-1]))
     print(str(read.record['x'][-1])+" / "+ str(read.newpart))
