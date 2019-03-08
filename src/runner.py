@@ -14,7 +14,7 @@ from mar import MAR
 from sk import rdivDemo
 import pandas as pd
 
-def TEST_AL(filename, old_files = [], stop='true', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
     stopat = float(stopat)
     thres = 0
     counter = 0
@@ -69,7 +69,7 @@ def TEST_AL(filename, old_files = [], stop='true', stopat=1, error='none', inter
     # read.plot()
     return read
 
-def Supervised(filename, old_files = [], stop='true', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
     stopat = float(stopat)
     np.random.seed(seed)
 
