@@ -14,7 +14,7 @@ from mar import MAR
 from sk import rdivDemo
 import pandas as pd
 
-def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, step =10):
     stopat = float(stopat)
     thres = 0
     counter = 0
@@ -47,20 +47,12 @@ def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interv
             break
 
         if pos < starting or pos+neg<thres:
-            if timestart:
-                for id in read.fast():
-                    read.code_error(id, error=error)
-            else:
-                for id in read.random():
-                    read.code_error(id, error=error)
+            for id in read.random():
+                read.code_error(id, error=error)
         else:
             a,b,c,d =read.train(weighting=True,pne=True)
-            if stop == 'est':
-                if stopat * read.est_num <= pos:
-                    break
-            else:
-                if pos >= target:
-                    break
+            if pos >= target:
+                break
             for id in c:
                 read.code_error(id, error=error)
     # read.export()
@@ -69,7 +61,7 @@ def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interv
     # read.plot()
     return read
 
-def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, timestart = False, step =10):
+def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', interval = 100000, starting =1, seed=0, step =10):
     stopat = float(stopat)
     np.random.seed(seed)
 
@@ -106,12 +98,8 @@ def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', int
         if pos + neg >= total:
             break
 
-        if stop == 'est':
-            if stopat * read.est_num <= pos:
-                break
-        else:
-            if pos >= target:
-                break
+        if pos >= target:
+            break
         for id in read.query_supervised()[:read.step]:
             read.code_error(id, error=error)
     return read
@@ -228,7 +216,7 @@ def exp_HPC(i , input = '../data/'):
     results['true']=[pos,total]
     results['supervised'] = read.record
 
-    read = Supervised(file, files)
+    read = TEST_AL(file)
     results['active'] = read.record
 
 
