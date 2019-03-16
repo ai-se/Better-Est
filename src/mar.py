@@ -256,7 +256,7 @@ class MAR(object):
         decayed = list(left) + list(negs)
         unlabeled = self.pool
         try:
-            unlabeled = np.random.choice(unlabeled,size=np.max((len(left),self.atleast)),replace=False)
+            unlabeled = np.random.choice(unlabeled,size=np.max((len(decayed),2*len(left),self.atleast)),replace=False)
         except:
             pass
 
