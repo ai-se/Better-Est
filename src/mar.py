@@ -240,8 +240,10 @@ class MAR(object):
         self.clf.fit(self.csr_mat[labeled],self.body['code'][labeled])
 
     def query_supervised(self):
-        prediction = self.clf.predict(self.csr_mat[self.pool])
-        certain_id = self.pool[np.argsort(prediction)[::-1]]
+        pos_at = list(self.clf.classes_).index("yes")
+        prob = self.clf.predict_proba(self.csr_mat[self.pool])[:,pos_at]
+        order = np.argsort(prob)[::-1]
+        certain_id = self.pool[order]
         self.est_num, self.est = self.estimate_curve(self.clf, num_neg=Counter(self.body['code'][self.newpart:])['no'])
         return certain_id
 
