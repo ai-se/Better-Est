@@ -232,6 +232,7 @@ def plot_HPC(input = '../dump/'):
         with open("../dump/"+file,"r") as handle:
             result = pickle.load(handle)
         Plot(result,'.'.join(file.split('.')[:-1]))
+        set_trace()
 
 
 
