@@ -84,6 +84,8 @@ def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', int
     read.train_supervised()
     pos, neg, total = read.get_numbers()
 
+
+
     read.query_supervised()
     read.record['est'][0]= read.est_num
 
@@ -213,8 +215,12 @@ def exp_HPC(i , input = '../data/'):
     pos = Counter(read.body['label'][:read.newpart])['yes']
     total = read.newpart
 
+
     results['true']=[pos,total]
     results['supervised'] = read.record
+    thres = Counter(read.clf.predict(read.csr_mat[:read.newpart]))['yes']
+    results['supervised']['thres'] = thres
+
 
     read = TEST_AL(file)
     results['active'] = read.record
