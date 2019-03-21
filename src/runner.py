@@ -51,7 +51,7 @@ def TEST_AL(filename, old_files = [], stop='est', stopat=1, error='none', interv
                 read.code_error(id, error=error)
         else:
             a,b,c,d =read.train(weighting=True,pne=True)
-            if pos >= target:
+            if pos >= target and read.est_num*stopat<= pos:
                 break
             for id in c:
                 read.code_error(id, error=error)
@@ -98,7 +98,7 @@ def Supervised(filename, old_files = [], stop='est', stopat=1, error='none', int
         if pos + neg >= total:
             break
 
-        if pos >= target:
+        if pos >= target and read.est_num*stopat<= pos:
             break
         for id in read.query_supervised()[:read.step]:
             read.code_error(id, error=error)
