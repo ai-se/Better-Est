@@ -145,6 +145,32 @@ def Plot(results,file_save):
     plt.savefig('../figure/'+file_save+".pdf")
     plt.close(fig)
 
+def sum_stop(results, file, target = 0.95):
+    pos = float(results['true'][0])
+    total = float(results['true'][1])
+    thres = results['supervised']['thres']
+    x = results['supervised']['x']
+    y = results['supervised']['pos']
+    est = results['supervised']['est']
+    sup_est = 0
+    stop_cost = 0
+    for i,cost in enumerate(x):
+        if sup_est==0 and cost >= thres:
+            sup_pos = y[i]
+            sup_est = float(est[i])
+            sup_cost = cost
+        if stop_cost==0 and est[i]*target <= y[i]:
+            stop_pos = y[i]
+            stop_cost = cost
+            stop_est = float(est[i])
+        if stop_cost and sup_est:
+            break
+    print(file)
+    print("Classification:")
+    print("True recall: %.2f, est recall: %.2f, precision: %.2f" %(sup_pos/pos, sup_pos/sup_est, sup_pos/float(sup_cost)))
+    print("Stop at %.2f recall:" %target)
+    print("True recall: %.2f, est recall: %.2f, cost: %.2f" %(stop_pos/pos, stop_pos/stop_est, stop_cost/total))
+    print("")
 
 
 
@@ -238,7 +264,7 @@ def plot_HPC(input = '../dump/'):
         with open("../dump/"+file,"r") as handle:
             result = pickle.load(handle)
         Plot(result,'.'.join(file.split('.')[:-1]))
-        set_trace()
+        sum_stop(result,'.'.join(file.split('.')[:-1]),target=0.90)
 
 
 
