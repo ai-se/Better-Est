@@ -154,6 +154,7 @@ def sum_stop(results, file, target = 0.95):
     est = results['supervised']['est']
     sup_est = 0
     stop_cost = 0
+    twenty_pos = 0
     for i,cost in enumerate(x):
         if sup_est==0 and cost >= thres:
             sup_pos = y[i]
@@ -163,11 +164,17 @@ def sum_stop(results, file, target = 0.95):
             stop_pos = y[i]
             stop_cost = cost
             stop_est = float(est[i])
-        if stop_cost and sup_est:
+        if twenty_pos==0 and cost>=total*0.2:
+            twenty_pos = y[i]
+            twenty_est = est[i]
+            twenty_cost = cost
+        if stop_cost and sup_est and twenty_pos:
             break
     print(file)
     print("Classification:")
     print("True recall: %.2f, est recall: %.2f, precision: %.2f" %(sup_pos/pos, sup_pos/sup_est, sup_pos/float(sup_cost)))
+    print("Stop at %.2f cost:" %0.2)
+    print("True recall: %.2f, est recall: %.2f, precision: %.2f" %(twenty_pos/pos, twenty_pos/twenty_est, twenty_pos/float(twenty_cost)))
     print("Stop at %.2f recall:" %target)
     print("True recall: %.2f, est recall: %.2f, cost: %.2f" %(stop_pos/pos, stop_pos/stop_est, stop_cost/total))
     print("")
